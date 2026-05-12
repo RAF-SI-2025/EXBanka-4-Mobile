@@ -36,6 +36,11 @@ import SecurityDetailScreen from '../screens/securities/SecurityDetailScreen';
 import OrderFormScreen from '../screens/securities/OrderFormScreen';
 import OrderResultScreen from '../screens/securities/OrderResultScreen';
 import PortfolioScreen from '../screens/portfolio/PortfolioScreen';
+import OTCHubScreen from '../screens/otc/OTCHubScreen';
+import OTCNegotiationDetailScreen from '../screens/otc/OTCNegotiationDetailScreen';
+import InvestmentFundsScreen from '../screens/funds/InvestmentFundsScreen';
+import FundDetailScreen from '../screens/funds/FundDetailScreen';
+import MyFundPositionsScreen from '../screens/funds/MyFundPositionsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -87,6 +92,15 @@ function CardsStack() {
   );
 }
 
+function OTCStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="OTCHub"               component={OTCHubScreen}               options={{ title: 'OTC Trading' }} />
+      <Stack.Screen name="OTCNegotiationDetail" component={OTCNegotiationDetailScreen} options={{ title: 'Detalji pregovora' }} />
+    </Stack.Navigator>
+  );
+}
+
 function MoreStack() {
   return (
     <Stack.Navigator>
@@ -106,6 +120,9 @@ function MoreStack() {
       <Stack.Screen name="OrderForm"          component={OrderFormScreen}         options={{ title: 'Novi nalog' }} />
       <Stack.Screen name="OrderResult"        component={OrderResultScreen}       options={{ title: 'Nalog poslat', headerBackVisible: false }} />
       <Stack.Screen name="Portfolio"          component={PortfolioScreen}         options={{ title: 'Moj portfolio' }} />
+      <Stack.Screen name="InvestmentFunds"    component={InvestmentFundsScreen}   options={{ title: 'Investicioni fondovi' }} />
+      <Stack.Screen name="FundDetail"         component={FundDetailScreen}        options={{ title: 'Detalji fonda' }} />
+      <Stack.Screen name="MyFundPositions"    component={MyFundPositionsScreen}   options={{ title: 'Moje investicije' }} />
     </Stack.Navigator>
   );
 }
@@ -122,6 +139,7 @@ export default function MainTabs() {
       <Tab.Screen name="AccountsTab"  component={AccountsStack}  options={{ title: 'Računi' }} />
       <Tab.Screen name="PaymentsTab"  component={PaymentsStack}  options={{ title: 'Plaćanja' }} />
       <Tab.Screen name="CardsTab"     component={CardsStack}     options={{ title: 'Kartice' }} />
+      <Tab.Screen name="OTCTab"       component={OTCStack}       options={{ title: 'OTC' }} />
       <Tab.Screen name="MoreTab"      component={MoreStack}      options={{ title: 'Više' }} />
     </Tab.Navigator>
   );

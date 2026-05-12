@@ -7,6 +7,9 @@ export const login = async (email, password) => {
 };
 
 export const logout = async () => {
+  try {
+    await apiClient.post('/auth/logout');
+  } catch {}
   await SecureStore.deleteItemAsync('access_token');
   await SecureStore.deleteItemAsync('refresh_token');
 };

@@ -7,6 +7,7 @@ const ITEMS = [
   { label: 'Menjačnica',             screen: 'ExchangeRates' },
   { label: 'Hartije od vrednosti',   screen: 'Securities' },
   { label: 'Moj portfolio',          screen: 'Portfolio' },
+  { label: 'Investicioni fondovi',   screen: 'InvestmentFunds' },
   { label: 'Profil',                 screen: 'Profile' },
 ];
 
