@@ -92,7 +92,8 @@ export default function MyFundPositionsScreen() {
       setAccounts(accs ?? []);
       setSelectedAccount(accs?.[0] ?? null);
     } catch {
-      setAccounts([]);
+      Alert.alert('Greška', 'Nije moguće učitati račune.');
+      return;
     }
     setAmount('');
     setWithdrawAll(false);

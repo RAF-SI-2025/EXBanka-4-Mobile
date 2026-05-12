@@ -32,7 +32,3 @@ export const withdrawFromFund = async (fundId, destinationAccountId, amount, wit
   return data;
 };
 
-export const getFundPerformance = async (fundId) => {
-  const { data } = await apiClient.get(`/investment/funds/${fundId}/performance`);
-  return data;
-};

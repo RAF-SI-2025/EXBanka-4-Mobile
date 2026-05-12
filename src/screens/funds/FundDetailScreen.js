@@ -70,7 +70,8 @@ export default function FundDetailScreen({ route }) {
       setAccounts(accs ?? []);
       setSelectedAccount(accs?.[0] ?? null);
     } catch {
-      setAccounts([]);
+      Alert.alert('Greška', 'Nije moguće učitati račune.');
+      return;
     }
     setAmount('');
     setInvesting(true);
@@ -84,6 +85,10 @@ export default function FundDetailScreen({ route }) {
     }
     if (parsedAmt < (fund?.minimumContribution ?? 0)) {
       Alert.alert('Greška', `Minimalni ulog je ${fmt(fund.minimumContribution)} RSD.`);
+      return;
+    }
+    if (parsedAmt > (selectedAccount.availableBalance ?? 0)) {
+      Alert.alert('Greška', `Nedovoljno sredstava na računu (dostupno: ${fmt(selectedAccount.availableBalance)} ${selectedAccount.currency}).`);
       return;
     }
     setSubmitting(true);
