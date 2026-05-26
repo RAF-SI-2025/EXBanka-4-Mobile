@@ -2,14 +2,16 @@ import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   RefreshControl,
   StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { getPortfolio, getProfit } from '../../services/portfolioService';
+import { getPortfolio, getProfit, setPublicMode } from '../../services/portfolioService';
 import { card, colors } from '../../theme';
 
 function fmt(value, decimals = 2) {
@@ -28,7 +30,8 @@ function ProfitText({ value }) {
   );
 }
 
-function HoldingItem({ item, onSell }) {
+function HoldingItem({ item, onSell, onTogglePublic, isToggling }) {
+  const isStock = item.asset_type === 'STOCK';
   return (
     <View style={[card, styles.item]}>
       <View style={styles.itemHeader}>
@@ -57,6 +60,21 @@ function HoldingItem({ item, onSell }) {
           <ProfitText value={item.profit ?? 0} />
         </View>
       </View>
+
+      {isStock && (
+        <View style={styles.publicRow}>
+          <Text style={styles.publicLabel}>
+            {item.is_public ? 'Vidljivo na OTC marketu' : 'Privatno'}
+          </Text>
+          <Switch
+            value={!!item.is_public}
+            onValueChange={(val) => onTogglePublic(item.ticker, item.is_public, val)}
+            disabled={isToggling}
+            trackColor={{ false: colors.border, true: colors.primary }}
+            thumbColor="#fff"
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -67,6 +85,7 @@ export default function PortfolioScreen({ navigation }) {
   const [loading,    setLoading]    = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error,      setError]      = useState(null);
+  const [toggling,   setToggling]   = useState(new Set());
 
   const load = useCallback(async (refresh = false) => {
     if (refresh) setRefreshing(true);
@@ -85,6 +104,20 @@ export default function PortfolioScreen({ navigation }) {
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  const handleTogglePublic = async (ticker, currentIsPublic, next) => {
+    if (toggling.has(ticker)) return;
+    setToggling(prev => new Set(prev).add(ticker));
+    setHoldings(prev => prev.map(h => h.ticker === ticker ? { ...h, is_public: next } : h));
+    try {
+      await setPublicMode(ticker, next);
+    } catch {
+      setHoldings(prev => prev.map(h => h.ticker === ticker ? { ...h, is_public: currentIsPublic } : h));
+      Alert.alert('Greška', 'Nije moguće promijeniti vidljivost hartije.');
+    } finally {
+      setToggling(prev => { const s = new Set(prev); s.delete(ticker); return s; });
+    }
+  };
 
   const handleSell = (holding) => {
     const listingId = holding.listing_id;
@@ -128,7 +161,12 @@ export default function PortfolioScreen({ navigation }) {
           </View>
         }
         renderItem={({ item }) => (
-          <HoldingItem item={item} onSell={() => handleSell(item)} />
+          <HoldingItem
+            item={item}
+            onSell={() => handleSell(item)}
+            onTogglePublic={handleTogglePublic}
+            isToggling={toggling.has(item.ticker)}
+          />
         )}
       />
     </View>
@@ -161,6 +199,9 @@ const styles = StyleSheet.create({
   sellBtnText: { fontSize: 13, fontWeight: '600', color: colors.error },
 
   itemRow:  { flexDirection: 'row', justifyContent: 'space-between' },
+  publicRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+               marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.border },
+  publicLabel: { fontSize: 12, color: colors.textSecondary },
   itemStat: { alignItems: 'center', flex: 1 },
   statLabel: { fontSize: 10, fontWeight: '600', color: colors.textMuted,
                textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 },
